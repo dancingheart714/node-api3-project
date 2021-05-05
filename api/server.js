@@ -1,17 +1,13 @@
 const express = require('express');
-
-const userRouter = require('./users/users-router');
-const postsRouter = require('./posts/posts-router');
-
 const { logger } = require('./middleware/middleware');
-
 const server = express();
+const usersRouter = require('./users/users-router');
 
 server.use(express.json());
+
 server.use(logger);
 
-server.use('/users', userRouter);
-server.use('/posts', postsRouter);
+server.use('/api/users', usersRouter);
 
 server.use('*', (req, res) => {
   res.status(404).json({

@@ -1,59 +1,54 @@
-const users = require('../users/users-model');
-const post = require('../posts/posts-model');
+const User = require('../users/users-model');
 
-function logger() {
-  //DO YOUR MAGIC
-  return (req, res, next) => {
-    newTime = newDate().toISOSString();
-    console.log(`
-  Method: ${req.method},
-  URL: ${req.url},
-  Timestamp: [${newTime}]`);
-    next();
-  };
+function logger(req, res, next) {
+  const timestamp = new Date().toLocaleString();
+  const method = req.method;
+  const url = req.originalUrl;
+  console.log(`[${timestamp}] ${req.method} to ${req.url}`);
+  next();
 }
 
-function validateUserId() {
-  //DO YOUR MAGIC
-  return (req, res, next) => {
-    users.getById(req.params.id).then((user) => {
-      if (user) {
-        req.user = user;
-        next();
-      } else {
-        res.status(404).json({
-          message: 'user not found',
-        });
-      }
+async function validateUserId(req, res, next) {
+  try {
+    const user = await User.getById(req.params.id);
+    if (!user) {
+      res.status(404).json({
+        message: 'no such user',
+      });
+    } else {
+      req.user = user;
+      next();
+    }
+  } catch (err) {
+    res.status(500).json({
+      message: 'problem finding user',
     });
-  };
+  }
 }
 
-function validateUser() {
-  //DO YOUR MAGIC
-  return (req, res, next) => {
-    if (!req.body.name) {
-      res.status(400).json({
-        message: 'missing required name field',
-      });
-    }
+function validateUser(req, res, next) {
+  const { name } = req.body;
+  if (!name || !name.trim()) {
+    res.status(400).json({
+      message: 'missing required name field',
+    });
+  } else {
+    req.name = name.trim();
     next();
-  };
+  }
 }
 
-function validatePost() {
-  //DO YOUR MAGIC
-  return (req, res, next) => {
-    if (!req.body.text) {
-      res.status(400).json({
-        message: 'missing required text field',
-      });
-    }
+function validatePost(req, res, next) {
+  const { text } = req.body;
+  if (!text || !text.trim()) {
+    res.status(400).json({
+      message: 'missing required text field',
+    });
+  } else {
+    req.text = text.trim();
     next();
-  };
+  }
 }
-
-// do not forget to expose these functions to other modules
 
 module.exports = {
   logger,
