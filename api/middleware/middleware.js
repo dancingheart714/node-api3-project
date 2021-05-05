@@ -1,56 +1,55 @@
 const users = require('../users/users-model');
+const post = require('../posts/posts-model');
 
-function logger(req, res, next) {
+function logger() {
+  //DO YOUR MAGIC
   return (req, res, next) => {
+    newTime = newDate().toISOSString();
     console.log(`
   Method: ${req.method},
   URL: ${req.url},
-  Timestamp: ${Date().toISOSString()}
-  `);
+  Timestamp: [${newTime}]`);
     next();
   };
 }
 
-function validateUserId(req, res, next) {
+function validateUserId() {
+  //DO YOUR MAGIC
   return (req, res, next) => {
-    users
-      .getById(req.params.id)
-      .then((user) => {
-        if (user) {
-          req.user = user;
-          next();
-        } else {
-          res.status(404).json({
-            message: 'user not found',
-          });
-        }
-      })
-      .catch((err) => {
-        console.log(error);
-      });
+    users.getById(req.params.id).then((user) => {
+      if (user) {
+        req.user = user;
+        next();
+      } else {
+        res.status(404).json({
+          message: 'user not found',
+        });
+      }
+    });
   };
 }
 
-function validateUser(req, res, next) {
+function validateUser() {
+  //DO YOUR MAGIC
   return (req, res, next) => {
     if (!req.body.name) {
       res.status(400).json({
         message: 'missing required name field',
       });
     }
+    next();
   };
 }
 
-function validatePost(req, res, next) {
+function validatePost() {
+  //DO YOUR MAGIC
   return (req, res, next) => {
     if (!req.body.text) {
       res.status(400).json({
         message: 'missing required text field',
       });
-    } else {
-      res.postEdit = res.body;
-      next();
     }
+    next();
   };
 }
 

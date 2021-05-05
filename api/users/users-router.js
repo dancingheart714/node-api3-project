@@ -1,8 +1,8 @@
 const express = require('express');
 
 // You will need `users-model.js` and `posts-model.js` both
-const users = require('./users/users-model.js');
-const posts = require('./posts/posts-model.js');
+const users = require('./users-model');
+const posts = require('../posts/posts-model');
 
 // The middleware functions also need to be required
 const {
@@ -10,7 +10,7 @@ const {
   validatePost,
   validateUser,
   validateUserId,
-} = require('./middleware/middleware');
+} = require('../middleware/middleware');
 
 const router = express.Router();
 
@@ -19,7 +19,7 @@ router.get('/', (req, res, next) => {
   users
     .get()
     .then((users) => {
-      res.status(200).json(users);
+      res.status(200).json([users]);
     })
     .catch(next);
 });
@@ -31,17 +31,6 @@ router.get('/:id', validateUserId(), logger, (req, res) => {
 });
 
 router.post('/', validateUser(), logger, (req, res, next) => {
-  // RETURN THE NEWLY CREATED USER OBJECT
-  // this needs a middleware to check that the request body is valid
-  users
-    .insert(req.body.text)
-    .then((user) => {
-      res.status(201).json(user);
-    })
-    .catch(next);
-});
-
-router.put('/:id', validateUserId(), logger, (req, res, next) => {
   // RETURN THE FRESHLY UPDATED USER OBJECT
   // this needs a middleware to verify user id
   // and another middleware to check that the request body is valid
@@ -89,9 +78,9 @@ router.post(
     const postInfo = { ...req.body, user_id: req.params.id };
 
     posts
-      .add(postInfo)
-      .then((post) => {
-        res.status(201).json(post);
+      .insert(body)
+      .then((postInfo) => {
+        res.status(201).json(postInfo);
       })
       .catch(next);
   }
